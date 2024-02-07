@@ -1,8 +1,10 @@
 pipeline {
     agent any
+    tools {nodejs "NodeJs"}
     
     environment {     
-    DOCKERHUB_CREDENTIALS= credentials('dockerHub')     
+    DOCKERHUB_CREDENTIALS= credentials('dockerHub') 
+     SCANNER_HOME = tool 'sonar-scanner';  
        } 
 
     
@@ -20,9 +22,15 @@ pipeline {
                 echo 'code build bhi ho gaya'
             }
         }
-        stage("scan image"){
-            steps{
-                echo 'image scanning ho gayi'
+       
+        stage('SonarQube analysis') {
+           
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                sh "${SCANNER_HOME}/bin/sonar-scanner"
+             
+              }
+             
             }
         }
         stage('Login to Docker Hub') {      	
